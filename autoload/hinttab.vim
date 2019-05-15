@@ -33,7 +33,7 @@ function! s:tabpage_label(n) abort
   endif
   let hi = a:n is tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
   let label = '[' . get(s:tabnr2label, a:n, 'INVALID') . ']'
-  let text = printf('%%#ErrorMsg#%s%s', label, hi) . fname
+  let text = fname . printf('%%#ErrorMsg#%s%s', label, hi)
   return printf('%%%dT%s%s%%T%%#TabLineFill#', a:n, hi, text)
 endfunction
 
@@ -41,10 +41,8 @@ function! hinttab#tabline() abort
   let tabpagenrs = range(1, tabpagenr('$'))
   let s:label2tabnr = s:Hint.create(tabpagenrs, s:keys)
   let s:tabnr2label = s:Dict.swap(s:label2tabnr)
-  let titles = map(copy(tabpagenrs), 's:tabpage_label(v:val)')
+  let titles = map(copy(tabpagenrs), {_, nr -> s:tabpage_label(nr) })
   let sep = '|'
   let tabpages = join(titles, sep) . sep . '%#TabLineFill#%T'
   return tabpages
 endfunction
-
-
