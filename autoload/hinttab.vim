@@ -2,7 +2,6 @@ let s:Hint = vital#hinttab#import('HitAHint.Hint')
 let s:Dict = vital#hinttab#import('Data.Dict')
 
 let s:keys = map(range(char2nr('a'),char2nr('z')), 'nr2char(v:val)')
-let s:tabnr2label = {}
 let s:label2tabnr = {}
 
 function! hinttab#move() abort
@@ -24,7 +23,7 @@ function! hinttab#move() abort
   endtry
 endfunction
 
-function! s:tabpage_label(n) abort
+function! s:tabpage_label(n, tabnr2label) abort
   let bufnrs = tabpagebuflist(a:n)
   let curbufnr = bufnrs[tabpagewinnr(a:n) - 1]
   let fname = pathshorten(bufname(curbufnr))[-15:]
@@ -32,7 +31,7 @@ function! s:tabpage_label(n) abort
     let fname = '[No Name]'
   endif
   let hi = a:n is tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
-  let label = '[' . get(s:tabnr2label, a:n, 'INVALID') . ']'
+  let label = '[' . get(a:tabnr2label, a:n, 'INVALID') . ']'
   let text = fname . printf('%%#ErrorMsg#%s%s', label, hi)
   return printf('%%%dT%s%s%%T%%#TabLineFill#', a:n, hi, text)
 endfunction
@@ -40,8 +39,8 @@ endfunction
 function! hinttab#tabline() abort
   let tabpagenrs = range(1, tabpagenr('$'))
   let s:label2tabnr = s:Hint.create(tabpagenrs, s:keys)
-  let s:tabnr2label = s:Dict.swap(s:label2tabnr)
-  let titles = map(copy(tabpagenrs), {_, nr -> s:tabpage_label(nr) })
+  let tabnr2label = s:Dict.swap(s:label2tabnr)
+  let titles = map(copy(tabpagenrs), {_, nr -> s:tabpage_label(nr, tabnr2label) })
   let sep = '|'
   let tabpages = join(titles, sep) . sep . '%#TabLineFill#%T'
   return tabpages
