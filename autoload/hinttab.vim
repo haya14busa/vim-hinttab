@@ -6,6 +6,9 @@ let s:tabnr2label = {}
 let s:label2tabnr = {}
 
 function! hinttab#move() abort
+  if tabpagenr('$') ==# 1
+    return
+  endif
   let save_tabline = &tabline
   set tabline=%!hinttab#tabline()
   try
